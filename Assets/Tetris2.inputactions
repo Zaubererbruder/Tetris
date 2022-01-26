@@ -38,7 +38,7 @@
                     "name": "1D Axis",
                     "id": "ab105c5c-9e58-4594-940f-1beacd18d832",
                     "path": "1DAxis",
-                    "interactions": "Hold",
+                    "interactions": "Hold(duration=0.1)",
                     "processors": "",
                     "groups": "",
                     "action": "Move",

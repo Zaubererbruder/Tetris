@@ -1,6 +1,6 @@
 {
     "name": "ModelAssembly",
-    "rootNamespace": "Assets.Scripts.Model",
+    "rootNamespace": "",
     "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],

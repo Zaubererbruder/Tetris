@@ -19,6 +19,7 @@ namespace Assets.Scripts.Model
         public BrickForm(IEnumerable<Position> blocksPos)
         {
             _blocksPos = new List<Position>(blocksPos);
+            
         }
 
         public IReadOnlyList<Position> BlocksPosition => _blocksPos;

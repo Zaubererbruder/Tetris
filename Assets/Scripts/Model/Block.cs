@@ -30,7 +30,7 @@ namespace Assets.Scripts.Model
             BlockMoved?.Invoke();
         }
 
-        internal void Destroy()
+        public void Destroy()
         {
             BlockDestroyed?.Invoke();
         }

@@ -26,6 +26,7 @@ namespace Assets.Scripts.Model
 
         public Position StartPosition => _startPosition;
         public event Action MapOverFilled;
+        public event Action LineRemoved;
 
         private bool CellUnaccesible(int x, int y)
         {
@@ -88,6 +89,7 @@ namespace Assets.Scripts.Model
             while(LineFilled(out var lineIndex))
             {
                 RemoveLine(lineIndex);
+                LineRemoved?.Invoke();
             }
         }
 

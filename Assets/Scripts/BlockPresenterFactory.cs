@@ -5,17 +5,23 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using Assets.Scripts.Model;
+using Assets.Scripts.Settings;
 
 namespace Assets.Scripts
 {
     public class BlockPresenterFactory : MonoBehaviour
     {
-        [SerializeField] private BlockPresenter _blockComp;
+        private GameSettings _settings;
 
-        public void Create(Block block)
+        public void Init(GameSettings settings)
         {
-            var instance = Instantiate(_blockComp, PositionTranslator.ToUnityPosition(block.Position), Quaternion.identity);
-            instance.Init(block);
+            _settings = settings;
+        }
+
+        public void Create(Block block, PositionTranslator positionTranslator, Transform parent)
+        {
+            var instance = Instantiate(_settings.BlockPrefab, positionTranslator.ToUnityPosition(block.Position), Quaternion.identity, parent);
+            instance.Init(block, positionTranslator);
         }
     }
 }

@@ -1,52 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using Assets.Scripts.Model.Bricks;
-using Assets.Scripts.Model;
+using Assets.Scripts.Settings;
 
 namespace Assets.Scripts
 {
     public class Root : MonoBehaviour
     {
-        [SerializeField] private BlockPresenterFactory _blockFactory;
         [SerializeField] private InputRouter _inputRouter;
-        private Level _level;
+        [SerializeField] private GameUIPresenter _uiPresenter;
+        [SerializeField] private GameSettings _gameSettings;
+
+        private List<LevelPresenter> _levelList;
+        private LevelsConnector _levelsConnector;
 
         public void Awake()
         {
-            _level = new Level();
-            _inputRouter.Init(_level);
-        }
+            var levels = GetComponentsInChildren<LevelPresenter>(true);
+            _levelList = new List<LevelPresenter>(levels);
+            _levelsConnector = new LevelsConnector(_levelList);
+            _levelsConnector.Init(_gameSettings);
+            _inputRouter.Init(_levelsConnector);
 
-        public void Start()
-        {
-            _level.StartGame();
-        }
-
-        public void OnEnable()
-        {
-            _level.BrickLaunched += CreateBrick;
-        }
-
-        public void OnDisable()
-        {
-            _level.BrickLaunched -= CreateBrick;
-        }
-
-        public void Update()
-        {
-            _level.Update(Time.deltaTime);
-        }
-
-        private void CreateBrick(Brick brick)
-        {
-            foreach (var block in brick.Blocks)
-            {
-                _blockFactory.Create(block);
-            }
+            _uiPresenter.Init(_levelsConnector);
         }
     }
 }

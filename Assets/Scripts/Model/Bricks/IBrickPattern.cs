@@ -21,5 +21,6 @@ namespace Assets.Scripts.Model.Bricks
 
         public override int BlockCount { get => 4; }
         public override BrickForm Form => _form;
+        public override bool Rotateable => true;
     }
 }

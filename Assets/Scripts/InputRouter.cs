@@ -11,25 +11,25 @@ namespace Assets.Scripts
 {
     public class InputRouter : MonoBehaviour
     {
-        private Level _level;
+        private LevelsConnector _connector;
         private bool _movePressed;
-        private float _moveInvokeDelay = 0.05f;
+        private float _moveInvokeDelay = 0.1f;
         private float _moveDelayCounter = 0;
         private int _moveDirection = 0;
 
-        public void Init(Level level)
+        public void Init(LevelsConnector connector)
         {
-            _level = level;
+            _connector = connector;
         }
 
         public void Update()
         {
-            if(_movePressed)
+            if (_movePressed)
             {
                 _moveDelayCounter += Time.deltaTime;
                 if (_moveDelayCounter >= _moveInvokeDelay)
                 {
-                    _level.DoMove(_moveDirection);
+                    _connector.SendMoveCommand(_moveDirection);
                     _moveDelayCounter = 0;
                 }
             }
@@ -40,7 +40,7 @@ namespace Assets.Scripts
             _moveDirection = (int)callback.ReadValue<float>();
             if(callback.started)
             {
-                _level.DoMove(_moveDirection);
+                _connector.SendMoveCommand(_moveDirection);
             }
             if(callback.performed)
             {
@@ -56,11 +56,11 @@ namespace Assets.Scripts
         {
             if(callback.performed)
             {
-                _level.AccelerateFall();
+                _connector.SendAccelerationCommand();
             }
             if(callback.canceled)
             {
-                _level.CancelAcceleration();
+                _connector.SendCancelAccelerationCommand();
             }
         }
 
@@ -68,7 +68,7 @@ namespace Assets.Scripts
         {
             if(callback.performed)
             {
-                _level.DoRotate(true);
+                _connector.SendRotateCommand(true);
             }
         }
     }

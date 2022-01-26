@@ -17,6 +17,11 @@ namespace Assets.Scripts.Model
             _bricks = new List<BrickPattern>(bricks);
         }
 
+        public BrickRandomizer(IEnumerable<BrickPattern> bricks)
+        {
+            _bricks = new List<BrickPattern>(bricks);
+        }
+
         public BrickPattern CurrentBrick => _currentBrick;
 
         public BrickPattern ChooseNextBrick()
