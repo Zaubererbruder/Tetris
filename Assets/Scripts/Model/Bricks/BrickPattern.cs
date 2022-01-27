@@ -11,5 +11,7 @@ namespace Assets.Scripts.Model.Bricks
         public abstract bool Rotateable {get;}
         public abstract int BlockCount { get; }
 
+        public Color Color { get; set; }
+
     }
 }

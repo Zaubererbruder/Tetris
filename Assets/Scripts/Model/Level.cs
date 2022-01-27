@@ -138,6 +138,9 @@ namespace Assets.Scripts.Model
             if (!_gameActive)
                 return;
 
+            if (!_currentBrick.Rotateable)
+                return;
+
             if (_map.RotateAccesible(_currentBrick.Blocks, _currentBrick.Blocks[0].Position, clockwise, out var xOffset))
                 _currentBrick.DoRotate(clockwise, xOffset);
         }

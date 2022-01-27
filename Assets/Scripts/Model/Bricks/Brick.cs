@@ -21,7 +21,7 @@ namespace Assets.Scripts.Model.Bricks
             _pattern = pattern;
             _map = map;
             _form = _pattern.Form;
-            _color = Color.red;
+            _color = pattern.Color;
 
             var blockList = new List<Block>(pattern.BlockCount);
             for (var i = 0; i < pattern.BlockCount; i++)
@@ -39,6 +39,7 @@ namespace Assets.Scripts.Model.Bricks
         }
 
         public IReadOnlyList<Block> Blocks => _blocks;
+        public bool Rotateable => _pattern.Rotateable;
 
         public void DoFall()
         {

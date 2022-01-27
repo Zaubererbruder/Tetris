@@ -11,6 +11,7 @@ namespace Assets.Scripts.Model
     {
         private IReadOnlyList<BrickPattern> _bricks;
         private BrickPattern _currentBrick;
+        private ColorRandomizer _colorRandomizer = new ColorRandomizer();
 
         public BrickRandomizer(params BrickPattern[] bricks)
         {
@@ -28,6 +29,7 @@ namespace Assets.Scripts.Model
         {
             var brickIndex = Random.Range(0, _bricks.Count - 1);
             _currentBrick = _bricks[brickIndex];
+            _currentBrick.Color = _colorRandomizer.GetRandomColor();
             return _currentBrick;
         }
     }
