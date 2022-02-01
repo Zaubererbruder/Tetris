@@ -11,9 +11,9 @@ namespace Assets.Scripts
 {
     public class BlockPresenterFactory : MonoBehaviour
     {
-        private GameSettings _settings;
+        private GamePreferences _settings;
 
-        public void Init(GameSettings settings)
+        public void Init(GamePreferences settings)
         {
             _settings = settings;
         }

@@ -15,14 +15,15 @@ namespace Assets.Scripts
 
         public void AddScore()
         {
-            _score++;
-            ScoreChanged?.Invoke(_score);
+            _score += 1;
+            ScoreChanged?.Invoke(1);
         }
 
         public void ClearScore()
         {
+            var change = -_score;
             _score = 0;
-            ScoreChanged?.Invoke(_score);
+            ScoreChanged?.Invoke(change);
         }
     }
 }

@@ -5,13 +5,14 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using Assets.Scripts.Model.Bricks;
+using Assets.Scripts.Model.Settings;
 
 namespace Assets.Scripts.Model
 {
     public class Level
     {
         private Map _map;
-        private BrickRandomizer _brickRandomizer;
+        private BricksQueue _bricksQueue;
         private Brick _currentBrick;
         private BrickPattern _nextBrick;
         private ScoreCounter _scoreCounter;
@@ -20,50 +21,64 @@ namespace Assets.Scripts.Model
         private float _tickInterval = 0.5f;
         private float _tick = 0f;
         private bool _gameActive;
+        private GameSettings _settings;
 
         public BrickPattern NextBrick => _nextBrick;
         public ScoreCounter ScoreCounter => _scoreCounter;
         public event Action<Brick> BrickLaunched;
+        public event Action<IEnumerable<Block>> OnStartBlockGenerated;
 
         public Level()
         {
-            _map = new Map(12, 24);
-            _scoreCounter = new ScoreCounter();
+            _settings = new GameSettings();
+            ApplySettings();
         }
 
-        public Level WithSettings(float fallsInSecond, float accelerationRate)
+        public Level(GameSettings settings)
         {
-            if (fallsInSecond == 0)
+            if (settings.LevelWidth <= 3 || settings.LevelHeight <= 3)
+                throw new ArgumentException("Уровень должен быть размером не менее 4х4 ", nameof(settings));
+
+            if (settings.FallsInSecond == 0 || settings.AccelerationRate == 0)
                 throw new DivideByZeroException();
 
-            _defaultTickInterval = 1 / fallsInSecond;
-            _acceleratedTickInterval = _defaultTickInterval / accelerationRate;
+            _settings = settings;
+            ApplySettings();
+        }
+
+        private void ApplySettings()
+        {
+            _map = new Map(_settings.LevelWidth, _settings.LevelHeight);
+            _scoreCounter = new ScoreCounter();
+
+            _defaultTickInterval = 1 / _settings.FallsInSecond;
+            _acceleratedTickInterval = _defaultTickInterval / _settings.AccelerationRate;
             _tickInterval = _defaultTickInterval;
-            return this;
         }
 
         private void LaunchBrick()
         {
-            _currentBrick = _nextBrick.Create(_map);
-            _nextBrick = _brickRandomizer.ChooseNextBrick();
+            _currentBrick = _bricksQueue.PickPatternFromQueue().Create(_map);
+            _nextBrick = _bricksQueue.NextBrickPattern;
             BrickLaunched?.Invoke(_currentBrick);
         }
 
         public void StartGame()
         {
-            _gameActive = true;
             _scoreCounter.ClearScore();
-            _map.MapOverFilled += GameOver;
-            _map.LineRemoved += LineRemovedHandler;
-            var patterns = ReflectionHelper.GetEnumerableOfType<BrickPattern>();
-            _brickRandomizer = new BrickRandomizer(patterns);
-            _nextBrick = _brickRandomizer.ChooseNextBrick();
-            LaunchBrick();
-        }
 
-        private void LineRemovedHandler()
-        {
-            _scoreCounter.AddScore();
+            var onStartBlocks = _settings.OnStartBlockGenerator.GenerateBlocks(_settings.LevelWidth, _settings.LevelHeight);
+            _map.FillMap(onStartBlocks);
+            OnStartBlockGenerated?.Invoke(onStartBlocks);
+
+            _map.MapOverFilled += GameOver;
+            _map.LineRemoved += _scoreCounter.AddScore;
+
+            _bricksQueue = new BricksQueue(_settings.BrickPatternPicker, _settings.ColorPicker);
+            _bricksQueue.PickPatternFromQueue();
+
+            _gameActive = true;
+            LaunchBrick();
         }
 
         private void GameOver()
@@ -71,6 +86,7 @@ namespace Assets.Scripts.Model
             _gameActive = false;
             _tick = 0;
             _map.MapOverFilled -= GameOver;
+            _map.LineRemoved -= _scoreCounter.AddScore;
         }
 
         public void Update(float deltaTime)
@@ -103,18 +119,15 @@ namespace Assets.Scripts.Model
 
         }
 
-        public bool DoMove(int direction)
+        public void DoMove(int direction)
         {
             if (!_gameActive)
-                return false;
+                return;
 
             if (_map.MoveAccesible(_currentBrick.Blocks, direction))
             {
                 _currentBrick.DoMove(direction);
-                return true;
             }
-
-            return false;
         }
 
         public void AccelerateFall()

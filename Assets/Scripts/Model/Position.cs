@@ -9,8 +9,8 @@ namespace Assets.Scripts.Model
     public struct Position
     {
         //Убрал из матриц поворота 0. Также инвертированная ось Y
-        private static Position _rotationMatrixClockwise = new Position(-1, 1);
-        private static Position _rotationMatrixCounter = new Position(1, -1);
+        private static Position _rotationMatrixClockwise = new Position(1, -1);
+        private static Position _rotationMatrixCounter = new Position(-1, 1);
 
         public int X;
         public int Y;
@@ -32,7 +32,7 @@ namespace Assets.Scripts.Model
                     X * matrix.Y);
         }
 
-        public Position RotateAt0(bool clockwise)
+        public Position RotateAt90(bool clockwise)
         {
             if (clockwise)
                 return MultiplyOnMatrix(_rotationMatrixClockwise);

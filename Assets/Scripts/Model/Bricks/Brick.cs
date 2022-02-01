@@ -45,7 +45,7 @@ namespace Assets.Scripts.Model.Bricks
         {
             foreach (var block in _blocks)
             {
-                var newPos = new Position(block.Position.X, block.Position.Y + 1);
+                var newPos = new Position(block.Position.X, block.Position.Y - 1);
                 block.Move(newPos);
             }
         }
@@ -65,7 +65,7 @@ namespace Assets.Scripts.Model.Bricks
             foreach(var block in _blocks)
             {
                 var relativePosition = block.Position - centralPos;
-                var rotatedPositionOffset = relativePosition.RotateAt0(clockwise);
+                var rotatedPositionOffset = relativePosition.RotateAt90(clockwise);
                 var resultPositionOffset = new Position(rotatedPositionOffset.X + xOffset, rotatedPositionOffset.Y);
                 block.Move(centralPos + resultPositionOffset);
             }

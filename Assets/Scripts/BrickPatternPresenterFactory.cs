@@ -14,9 +14,9 @@ namespace Assets.Scripts
     {
         private List<Block> _blockList = new List<Block>();
 
-        private GameSettings _settings;
+        private GamePreferences _settings;
 
-        public void Init(GameSettings settings)
+        public void Init(GamePreferences settings)
         {
             _settings = settings;
         }

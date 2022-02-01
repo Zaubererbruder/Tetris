@@ -1,11 +1,9 @@
 ﻿using Assets.Scripts.Model;
 using Assets.Scripts.Model.Bricks;
+using Assets.Scripts.SerializableDictionaries;
 using Assets.Scripts.Settings;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Assets.Scripts
@@ -18,17 +16,24 @@ namespace Assets.Scripts
         [SerializeField] private Transform _blocksParrent;
         [SerializeField] private Transform _patternParrent;
 
-        private GameSettings _gameSettings;
+        private GamePreferences _gameSettings;
+        private DifficultyPreset _difficultyPreset;
+        private InputRouter _inputRouter;
         private Level _level;
+        private ScoreAggregator _scoreAggregator;
 
         public ScoreCounter ScoreCounter => _level.ScoreCounter;
 
-        public void Init(GameSettings gameSettings)
+        public void Init(GamePreferences gameSettings, DifficultyPreset difficultyPreset, InputRouter inputRouter)
         {
             _gameSettings = gameSettings;
-            _level = new Level().WithSettings(gameSettings.FallsInSecond, gameSettings.AcellerationRate);
+            _difficultyPreset = difficultyPreset;
+            _inputRouter = inputRouter;
+
             _blockFactory.Init(_gameSettings);
             _patternFactory.Init(_gameSettings);
+
+            _level = new Level(_difficultyPreset.GetGameSettings());
         }
 
         private void BrickLaunchedHandler(Brick brick)
@@ -48,48 +53,35 @@ namespace Assets.Scripts
         public void OnEnable()
         {
             _level.BrickLaunched += BrickLaunchedHandler;
+            _level.OnStartBlockGenerated += OnStartBlockGeneratedHandler;
+
+            _inputRouter.MovePressed += _level.DoMove;
+            _inputRouter.RotatePressed += _level.DoRotate;
+            _inputRouter.AcceleratePressed += _level.AccelerateFall;
+            _inputRouter.AccelerateReleased += _level.CancelAcceleration;
+
             _level.StartGame();
+        }
+
+        private void OnStartBlockGeneratedHandler(IEnumerable<Block> blocks)
+        {
+            foreach (var block in blocks)
+            {
+                _blockFactory.Create(block, _positionTranslator, _blocksParrent);
+            }
         }
 
         public void OnDisable()
         {
             _level.BrickLaunched -= BrickLaunchedHandler;
-            _level = null;
+            _level.OnStartBlockGenerated -= OnStartBlockGeneratedHandler;
+
+            _inputRouter.MovePressed -= _level.DoMove;
+            _inputRouter.RotatePressed -= _level.DoRotate;
+            _inputRouter.AcceleratePressed -= _level.AccelerateFall;
+            _inputRouter.AccelerateReleased -= _level.CancelAcceleration;
         }
 
-        public void Update()
-        {
-            _level?.Update(Time.deltaTime);
-        }
-
-        public void StartLevel()
-        {
-            _level.StartGame();
-        }
-
-        public void SendMoveCommand(int direction)
-        {
-            _level.DoMove(direction);
-        }
-
-        public void SendAccelerationCommand()
-        {
-
-            _level.AccelerateFall();
-        }
-
-        public void SendCancelAccelerationCommand()
-        {
-
-            _level.CancelAcceleration();
-
-        }
-
-        public void SendRotateCommand(bool clockwise)
-        {
-
-            _level.DoRotate(clockwise);
-
-        }
+        public void Update() => _level?.Update(Time.deltaTime);
     }
 }

@@ -5,22 +5,23 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.InputSystem.Controls;
 using static UnityEngine.InputSystem.InputAction;
 
 namespace Assets.Scripts
 {
     public class InputRouter : MonoBehaviour
     {
-        private LevelsConnector _connector;
         private bool _movePressed;
         private float _moveInvokeDelay = 0.1f;
         private float _moveDelayCounter = 0;
         private int _moveDirection = 0;
 
-        public void Init(LevelsConnector connector)
-        {
-            _connector = connector;
-        }
+        public event Action<int> MovePressed;
+        public event Action<bool> RotatePressed;
+        public event Action AcceleratePressed;
+        public event Action AccelerateReleased;
+
 
         public void Update()
         {
@@ -29,7 +30,7 @@ namespace Assets.Scripts
                 _moveDelayCounter += Time.deltaTime;
                 if (_moveDelayCounter >= _moveInvokeDelay)
                 {
-                    _connector.SendMoveCommand(_moveDirection);
+                    MovePressed?.Invoke(_moveDirection);
                     _moveDelayCounter = 0;
                 }
             }
@@ -40,7 +41,7 @@ namespace Assets.Scripts
             _moveDirection = (int)callback.ReadValue<float>();
             if(callback.started)
             {
-                _connector.SendMoveCommand(_moveDirection);
+                MovePressed?.Invoke(_moveDirection);
             }
             if(callback.performed)
             {
@@ -49,6 +50,7 @@ namespace Assets.Scripts
             if (callback.canceled)
             {
                 _movePressed = false;
+                _moveDelayCounter = 0;
             }
         }
 
@@ -56,11 +58,11 @@ namespace Assets.Scripts
         {
             if(callback.performed)
             {
-                _connector.SendAccelerationCommand();
+                AcceleratePressed?.Invoke();
             }
             if(callback.canceled)
             {
-                _connector.SendCancelAccelerationCommand();
+                AccelerateReleased?.Invoke();
             }
         }
 
@@ -68,7 +70,7 @@ namespace Assets.Scripts
         {
             if(callback.performed)
             {
-                _connector.SendRotateCommand(true);
+                RotatePressed?.Invoke(true);
             }
         }
     }

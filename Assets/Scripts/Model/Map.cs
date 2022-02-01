@@ -11,8 +11,7 @@ namespace Assets.Scripts.Model
     public class Map
     {
         private Block[,] _map;
-        private Position _startPosition = new Position(5, 0);
-        private int _startY;
+        private Position _startPosition = new Position(5, 25);
         private const int dimensionY = 1;
         private const int dimensionX = 0;
 
@@ -30,9 +29,20 @@ namespace Assets.Scripts.Model
 
         private bool CellUnaccesible(int x, int y)
         {
-            return x < 0 || x >= xLength
-                || y < 0 || y >= yLength
-                || _map[x, y] != null;
+            var res = x < 0 || y < 0 || x>=xLength;
+            if (PositionInBounds(x, y))
+                return _map[x, y] != null || res;
+
+            return res;
+
+            //return x < 0 || x >= xLength
+            //    || y < 0 || y >= yLength
+            //    || _map[x, y] != null;
+        }
+
+        private bool PositionInBounds(int x, int y)
+        {
+            return x >= 0 && x < xLength && y >= 0 && y < yLength;
         }
 
         private bool CellUnaccesible(Position pos)
@@ -44,12 +54,15 @@ namespace Assets.Scripts.Model
         {
             foreach (var block in blocks)
             {
-                if (block.Position.Y + 1 >= yLength)
+                if (block.Position.Y - 1 < 0)
                     return false;
 
-                var cell = _map[block.Position.X, block.Position.Y + 1];
-                if (cell != null)
-                    return false;
+                if (block.Position.Y - 1 < _map.GetLength(dimensionY))
+                {
+                    var cell = _map[block.Position.X, block.Position.Y - 1];
+                    if (cell != null)
+                        return false;
+                }
             }
 
             return true;
@@ -66,9 +79,12 @@ namespace Assets.Scripts.Model
                 if (block.Position.Y < 0)
                     continue;
 
-                var cell = _map[newBlockPosX, block.Position.Y];
-                if (cell != null)
-                    return false;
+                if (block.Position.Y < _map.GetLength(dimensionY))
+                {
+                    var cell = _map[newBlockPosX, block.Position.Y];
+                    if (cell != null)
+                        return false;
+                }
             }
 
             return true;
@@ -95,27 +111,27 @@ namespace Assets.Scripts.Model
 
         private void RemoveLine(int lineIndex)
         {
-            for(int i = lineIndex;i>0;i--)
+            for (int i = lineIndex; i < yLength; i++)
             {
                 for (int j = 0; j < xLength; j++)
                 {
                     if (i == lineIndex)
                         _map[j, i].Destroy();
 
-                    _map[j, i] = i != 0 ? _map[j, i - 1] : null;
-                    _map[j, i]?.Move(new Position(_map[j, i].Position.X, _map[j, i].Position.Y+1));
+                    _map[j, i] = i != yLength-1 ? _map[j, i + 1] : null;
+                    _map[j, i]?.Move(new Position(_map[j, i].Position.X, _map[j, i].Position.Y - 1));
                 }
             }
         }
 
         private bool LineFilled(out int lineIndex)
         {
-            for(int i = 0;i<yLength;i++)
+            for (int i = yLength - 1; i >= 0; i--)
             {
                 bool lineFilled = true;
                 for (int j = 0; j < xLength; j++)
                 {
-                    if(!CellUnaccesible(j,i))
+                    if (!CellUnaccesible(j, i))
                     {
                         lineFilled = false;
                         break;
@@ -140,7 +156,7 @@ namespace Assets.Scripts.Model
             foreach (var block in blocks)
             {
                 var relativePosition = block.Position - center;
-                var rotatedPositionOffset = relativePosition.RotateAt0(clockwise);
+                var rotatedPositionOffset = relativePosition.RotateAt90(clockwise);
                 //if (CellUnaccesible(resultPosition))
                 newPositions.Add((block, rotatedPositionOffset));
             }

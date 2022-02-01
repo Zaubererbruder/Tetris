@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using Assets.Scripts.Settings;
+using Assets.Scripts.SerializableDictionaries;
 
 namespace Assets.Scripts
 {
@@ -8,20 +9,28 @@ namespace Assets.Scripts
     {
         [SerializeField] private InputRouter _inputRouter;
         [SerializeField] private GameUIPresenter _uiPresenter;
-        [SerializeField] private GameSettings _gameSettings;
+        [SerializeField] private GamePreferences _gameSettings;
+        [SerializeField] private DifficultyDictionary _difficultySettings;
 
+        private GameDifficulty _gameDifficulty = GameDifficulty.Easy;
         private List<LevelPresenter> _levelList;
-        private LevelsConnector _levelsConnector;
+        private ScoreAggregator _scoreAggregator;
 
-        public void Awake()
+        public void InitLevels()
         {
-            var levels = GetComponentsInChildren<LevelPresenter>(true);
+            var includeInactive = false;
+            var levels = GetComponentsInChildren<LevelPresenter>(includeInactive);
             _levelList = new List<LevelPresenter>(levels);
-            _levelsConnector = new LevelsConnector(_levelList);
-            _levelsConnector.Init(_gameSettings);
-            _inputRouter.Init(_levelsConnector);
+            _levelList.Init(_gameSettings, _difficultySettings[_gameDifficulty], _inputRouter);
+            _scoreAggregator = _levelList.GetScoreAggregator();
+            _scoreAggregator.ScoreChanged += _uiPresenter.ScoreChangedHandler;
+            _levelList.SetEnabled(true);
+            _scoreAggregator.OnEnable();
+        }
 
-            _uiPresenter.Init(_levelsConnector);
+        public void SetDifficulty(float indexDifficulty)
+        {
+            _gameDifficulty = (GameDifficulty)(int)indexDifficulty;
         }
     }
 }

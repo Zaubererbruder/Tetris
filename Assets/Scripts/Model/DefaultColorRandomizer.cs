@@ -7,11 +7,11 @@ using UnityEngine;
 
 namespace Assets.Scripts.Model
 {
-    public class ColorRandomizer
+    public class DefaultColorRandomizer : IColorPicker
     {
         private IReadOnlyList<Color> _colorsList;
 
-        public ColorRandomizer()
+        public DefaultColorRandomizer()
         {
             var list = new List<Color>();
             list.Add(Color.red);
@@ -22,9 +22,9 @@ namespace Assets.Scripts.Model
             _colorsList = list;
         }
 
-        public Color GetRandomColor()
+        public Color PickColor()
         {
-            return _colorsList[Random.Range(0, _colorsList.Count)];
+            return _colorsList[Random.Range(0, _colorsList.Count - 1)];
         }
     }
 }

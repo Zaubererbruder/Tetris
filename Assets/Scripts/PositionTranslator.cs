@@ -24,12 +24,12 @@ namespace Assets.Scripts.Model
 
         public Vector3 ToUnityPosition(Position position)
         {
-            return new Vector3(_levelPosition.x + _offsetX + position.X * _scale, _levelPosition.y + _offsetY - position.Y * _scale);
+            return new Vector3(_levelPosition.x + _offsetX + position.X * _scale, _levelPosition.y + _offsetY + position.Y * _scale);
         }
 
         public Vector3 GetPatternPosition(Position offset)
         {
-            return new Vector3(_levelPosition.x + _patternXOffset + (offset.X * _scale), _levelPosition.y + _patternYOffset + (-offset.Y * _scale));
+            return new Vector3(_levelPosition.x + _patternXOffset + (offset.X * _scale), _levelPosition.y + _patternYOffset + (offset.Y * _scale));
         }
     }
 }

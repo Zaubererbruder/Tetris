@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Assets.Scripts.Settings;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,14 +21,7 @@ namespace Assets.Scripts
 
         public void SliderValueChanged(float value)
         {
-            _difficultyText.text = ((DifficulryLevels)(int)value).ToString();
+            _difficultyText.text = ((GameDifficulty)(int)value).ToString();
         }
-    }
-
-    public enum DifficulryLevels
-    {
-        Easy = 0,
-        Normal,
-        Hard
     }
 }
